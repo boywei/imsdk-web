@@ -1,55 +1,55 @@
 <template>
   <div class="container">
-    <div id="wrapper" v-if="!isLogin" >
-      <login />
+    <div id="wrapper" v-if="!isLogin">
+      <login/>
       <qr-code-list/>
     </div>
     <div
-      class="loading"
-      v-else
-      v-loading="showLoading"
-      element-loading-text="正在拼命初始化..."
-      element-loading-background="rgba(0, 0, 0, 0.8)"
+        class="loading"
+        v-else
+        v-loading="showLoading"
+        element-loading-text="正在拼命初始化..."
+        element-loading-background="rgba(0, 0, 0, 0.8)"
     >
       <div class="chat-wrapper">
         <el-row>
           <el-col :xs="10" :sm="10" :md="8" :lg="8" :xl="7">
-            <side-bar />
+            <side-bar/>
           </el-col>
           <el-col :xs="14" :sm="14" :md="16" :lg="16" :xl="17">
-            <current-conversation />
+            <current-conversation/>
           </el-col>
         </el-row>
         <a
-          class="official-link"
-          href="https://cloud.tencent.com/product/im"
-          target="_blank"
-        >登录 即时通信IM 官网，了解更多体验方式</a>
+            class="official-link"
+            href="https://gitee.com/Mr_wu33/counseling"
+            target="_blank"
+        >心理咨询平台 带给你更多的烦恼</a>
       </div>
-      <calling  ref="callLayer" class="chat-wrapper"/>
-      <image-previewer />
-      <group-live />
+      <calling ref="callLayer" class="chat-wrapper"/>
+      <image-previewer/>
+      <group-live/>
     </div>
     <div class="bg"></div>
   </div>
 </template>
 
 <script>
-import { Notification } from 'element-ui'
-import { mapState } from 'vuex'
+import {Notification} from 'element-ui'
+import {mapState} from 'vuex'
 import CurrentConversation from './components/conversation/current-conversation'
 import SideBar from './components/layout/side-bar'
 import Login from './components/user/login'
 import ImagePreviewer from './components/message/image-previewer.vue'
 import QrCodeList from './components/qr-code-list'
-import { translateGroupSystemNotice } from './utils/common'
+import {translateGroupSystemNotice} from './utils/common'
 import GroupLive from './components/group-live/index'
 import Calling from './components/message/trtc-calling/calling-index'
-import { ACTION } from './utils/trtcCustomMessageMap'
+import {ACTION} from './utils/trtcCustomMessageMap'
 
 export default {
   title: 'TIMSDK DEMO',
-  data () {
+  data() {
     return {
       loginType: 2 // github 登录只使用默认账号登录
     }
@@ -88,8 +88,7 @@ export default {
 
   },
 
-  watch: {
-  },
+  watch: {},
 
   methods: {
     initListener() {
@@ -130,7 +129,7 @@ export default {
       this.$store.commit('updateFriendGroupList', data.data)
     },
 
-    onReceiveMessage({ data: messageList }) {
+    onReceiveMessage({data: messageList}) {
       this.handleVideoMessage(messageList)
       this.handleQuitGroupTip(messageList)
       this.handleCloseGroupLive(messageList)
@@ -138,7 +137,7 @@ export default {
       this.$store.commit('pushAvChatRoomMessageList', messageList)
     },
 
-    onError({ data }) {
+    onError({data}) {
       if (data.message !== 'Network Error') {
         this.$store.commit('showMessage', {
           message: data.message,
@@ -149,28 +148,28 @@ export default {
     onMessageReadByPeer() {
 
     },
-    onReadyStateUpdate({ name }) {
+    onReadyStateUpdate({name}) {
       const isSDKReady = name === this.TIM.EVENT.SDK_READY ? true : false
       this.$store.commit('toggleIsSDKReady', isSDKReady)
 
       if (isSDKReady) {
         this.tim
-          .getMyProfile()
-          .then(({ data }) => {
-            this.$store.commit('updateCurrentUserProfile', data)
-          })
-          .catch(error => {
-            this.$store.commit('showMessage', {
-              type: 'error',
-              message: error.message
+            .getMyProfile()
+            .then(({data}) => {
+              this.$store.commit('updateCurrentUserProfile', data)
             })
-          })
+            .catch(error => {
+              this.$store.commit('showMessage', {
+                type: 'error',
+                message: error.message
+              })
+            })
         this.$store.dispatch('getBlacklist')
         // 登录trtc calling
         this.trtcCalling.login({
           sdkAppID: this.sdkAppID,
           userID: this.userID,
-          userSig:this.userSig
+          userSig: this.userSig
         })
       }
     },
@@ -189,11 +188,11 @@ export default {
     checkoutNetState(state) {
       switch (state) {
         case this.TIM.TYPES.NET_STATE_CONNECTED:
-          return { message: '已接入网络', type: 'success' }
+          return {message: '已接入网络', type: 'success'}
         case this.TIM.TYPES.NET_STATE_CONNECTING:
-          return { message: '当前网络不稳定', type: 'warning' }
+          return {message: '当前网络不稳定', type: 'warning'}
         case this.TIM.TYPES.NET_STATE_DISCONNECTED:
-          return { message: '当前网络不可用', type: 'error' }
+          return {message: '当前网络不可用', type: 'error'}
         default:
           return ''
       }
@@ -220,8 +219,8 @@ export default {
     onReceiveGroupSystemNotice(event) {
       const isKickedout = event.data.type === 4
       const isCurrentConversation =
-        `GROUP${event.data.message.payload.groupProfile.groupID}` ===
-        this.currentConversation.conversationID
+          `GROUP${event.data.message.payload.groupProfile.groupID}` ===
+          this.currentConversation.conversationID
       // 在当前会话被踢，需reset当前会话
       if (isKickedout && isCurrentConversation) {
         this.$store.commit('resetCurrentConversation')
@@ -239,20 +238,20 @@ export default {
 
     selectConversation(conversationID) {
       if (conversationID !== this.currentConversation.conversationID) {
-        this.$store.dispatch('checkoutConversation',conversationID)
+        this.$store.dispatch('checkoutConversation', conversationID)
       }
     },
     isJsonStr(str) {
-      try{
+      try {
         JSON.parse(str)
         return true
-      }catch {
+      } catch {
         return false
       }
     },
     handleVideoMessage(messageList) {
       const videoMessageList = messageList.filter(
-        message => message.type === this.TIM.TYPES.MSG_CUSTOM && this.isJsonStr(message.payload.data)
+          message => message.type === this.TIM.TYPES.MSG_CUSTOM && this.isJsonStr(message.payload.data)
       )
       if (videoMessageList.length === 0) return
       const videoPayload = JSON.parse(videoMessageList[0].payload.data)
@@ -327,9 +326,9 @@ export default {
       // 筛选出当前会话的退群/被踢群的 groupTip
       const groupTips = messageList.filter(message => {
         return this.currentConversation.conversationID === message.conversationID &&
-          message.type === this.TIM.TYPES.MSG_GRP_TIP &&
-          (message.payload.operationType === this.TIM.TYPES.GRP_TIP_MBR_QUIT ||
-          message.payload.operationType === this.TIM.TYPES.GRP_TIP_MBR_KICKED_OUT)
+            message.type === this.TIM.TYPES.MSG_GRP_TIP &&
+            (message.payload.operationType === this.TIM.TYPES.GRP_TIP_MBR_QUIT ||
+                message.payload.operationType === this.TIM.TYPES.GRP_TIP_MBR_KICKED_OUT)
       })
       // 清理当前会话的群成员列表
       if (groupTips.length > 0) {
@@ -350,7 +349,7 @@ export default {
           let data = {}
           try {
             data = JSON.parse(message.payload.data)
-          } catch(e) {
+          } catch (e) {
             data = {}
           }
           if (data.roomId && Number(data.roomStatus) === 0) {
@@ -402,9 +401,11 @@ body {
 .container
   position relative
   height 100vh
+
 .container
   position relative
   height 100vh
+
 // TODO filter mac chrome 会有问题，下次修改可以去掉
 .bg {
   position: absolute;
@@ -465,6 +466,7 @@ body {
   border-radius: 10px;
   background: rgba(0, 0, 0, 0.1);
 }
+
 /deep/ .el-popover {
   width 800px
   position fixed
